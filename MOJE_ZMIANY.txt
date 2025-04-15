@@ -1,0 +1,8 @@
+1. Stworzenie map o różnych rozmiarach i poziomach trudności.
+2. Zaimplementowanie terenów: las, łąka, skała oraz diamenty.
+3. Umożliwienie graczowi poruszania się po mapie i zbierania drewna oraz diamentów.
+4. Dodanie umiejętności przechodzenia przez skały po zebraniu odpowiedniej ilości drewna.
+5. Dodanie przycisków do wyboru rozmiaru mapy i trudności.
+6. Zaktualizowanie plików TXT map.
+7. Dodanie obrazów terenu i postaci gracza, w tym diamentów.
+8. Aktualizacja liczników drewna i diamentów.
