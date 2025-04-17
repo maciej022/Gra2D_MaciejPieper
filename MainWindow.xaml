@@ -1,35 +1,52 @@
 ﻿<Window x:Class="Gra2D.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Gra 2D" Height="450" Width="800"
+        Title="Gra 2D" Height="600" Width="900"
         KeyDown="OknoGlowne_KeyDown">
-    <Grid>
-        <!-- Siatka mapy -->
-        <Grid x:Name="SiatkaMapy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"/>
-        
-        <!-- Panel boczny z przyciskami (przycisk wczytaj mapę poniżej, inne przyciski na górze) -->
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
-            
-            <!-- Sekcja wyboru rozmiaru mapy -->
-            <TextBlock Text="Rozmiar mapy:" FontWeight="Bold" Margin="5"/>
-            <Button Content="Mały" Tag="mala" Click="WybierzRozmiar_Click" Margin="5" Width="120"/>
-            <Button Content="Średni" Tag="srednia" Click="WybierzRozmiar_Click" Margin="5" Width="120"/>
-            <Button Content="Duży" Tag="duza" Click="WybierzRozmiar_Click" Margin="5" Width="120"/>
+	<Grid>
+		<!-- Siatka, na której pojawi się mapa gry -->
+		<Grid x:Name="SiatkaMapy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"/>
 
-            <!-- Sekcja wyboru trudności -->
-            <TextBlock Text="Trudność:" FontWeight="Bold" Margin="5"/>
-            <Button Content="Łatwy" Tag="latwy" Click="WybierzTrudnosc_Click" Margin="5" Width="120"/>
-            <Button Content="Średni" Tag="sredni" Click="WybierzTrudnosc_Click" Margin="5" Width="120"/>
-            <Button Content="Trudny" Tag="trudny" Click="WybierzTrudnosc_Click" Margin="5" Width="120"/>
-            
-            <!-- Przycisk Wczytaj mapę (powiększony i z innym kolorem) -->
-            <Button Content="Wczytaj mapę" Click="WczytajMape_Click" Margin="20" Width="150" Height="50" Background="DarkGreen" Foreground="White" FontSize="16"/>
-        </StackPanel>
+		<!-- Menu główne (umieszczone na górze, wyśrodkowane) -->
+		<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" x:Name="MenuGlowne">
+			<!-- Tytuł menu -->
+			<TextBlock Text="MENU GŁÓWNE" FontSize="24" FontWeight="Bold" Margin="10" TextAlignment="Center"/>
 
-        <!-- Etykiety z wynikami -->
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
-            <Label Name="EtykietaDrewna" Content="Drewno: 0" FontWeight="Bold" Margin="5"/>
-            <Label Name="EtykietaDiamenty" Content="Diamenty: 0" FontWeight="Bold" Margin="5"/>
-        </StackPanel>
-    </Grid>
+			<!-- Przycisk do wyświetlania opcji wyboru poziomu trudności -->
+			<Button Content="Wybierz poziom trudności" Click="PokazTrudnosci_Click" Margin="5" Width="250" Height="40"/>
+			<StackPanel Orientation="Vertical" x:Name="PanelTrudnosci" Visibility="Collapsed" HorizontalAlignment="Center">
+				<Button Content="Łatwy" Tag="latwy" Click="WybierzTrudnosc_Click" Margin="2" Width="200"/>
+				<Button Content="Średni" Tag="sredni" Click="WybierzTrudnosc_Click" Margin="2" Width="200"/>
+				<Button Content="Trudny" Tag="trudny" Click="WybierzTrudnosc_Click" Margin="2" Width="200"/>
+			</StackPanel>
+
+			<!-- Przycisk do wyświetlania opcji wyboru rozmiaru mapy -->
+			<Button Content="Wybierz rozmiar mapy" Click="PokazRozmiary_Click" Margin="10,15,10,5" Width="250" Height="40"/>
+			<StackPanel Orientation="Vertical" x:Name="PanelRozmiarow" Visibility="Collapsed" HorizontalAlignment="Center">
+				<Button Content="Mała" Tag="mala" Click="WybierzRozmiar_Click" Margin="2" Width="200"/>
+				<Button Content="Średnia" Tag="srednia" Click="WybierzRozmiar_Click" Margin="2" Width="200"/>
+				<Button Content="Duża" Tag="duza" Click="WybierzRozmiar_Click" Margin="2" Width="200"/>
+			</StackPanel>
+
+			<!-- Instrukcje sterowania -->
+			<TextBlock Text="Sterowanie:" FontWeight="Bold" Margin="10,20,10,2" HorizontalAlignment="Center"/>
+			<TextBlock Text="Strzałki – poruszanie się, C – zbieranie drewna i diamentów"
+                       TextAlignment="Center" HorizontalAlignment="Center" Width="300" Margin="2"/>
+
+			<!-- Zasady gry -->
+			<TextBlock Text="Cel gry:" FontWeight="Bold" Margin="10,20,10,2" HorizontalAlignment="Center"/>
+			<TextBlock Text="Zbieraj drewno, aby zdobyć umiejętność przechodzenia przez skały oraz diamenty, aby wygrać grę!"
+                       TextAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Center" Width="300" Margin="2"/>
+
+			<!-- Przycisk startowy -->
+			<Button Content="Wczytaj Mapę" Click="WczytajMape_Click" Margin="20" Width="200" Height="50"
+                    Background="DarkGreen" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+		</StackPanel>
+
+		<!-- Etykiety z wynikami (drewno i diamenty) -->
+		<StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+			<Label Name="EtykietaDrewna" Content="Drewno: 0" FontWeight="Bold" Margin="5"/>
+			<Label Name="EtykietaDiamenty" Content="Diamenty: 0" FontWeight="Bold" Margin="5"/>
+		</StackPanel>
+	</Grid>
 </Window>

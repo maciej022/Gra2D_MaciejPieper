@@ -13,7 +13,7 @@ namespace Gra2D
         public const int LAS = 1;
         public const int LAKA = 2;
         public const int SKALA = 3;
-        public const int DIAMENT = 4; // Dodanie nowego typu - diament
+        public const int DIAMENT = 4; // Typ terenu: diament
         public const int ILE_TERENOW = 5;
 
         private int[,] mapa;
@@ -47,6 +47,10 @@ namespace Gra2D
             bmpGracza.UriSource = new Uri("gracz.png", UriKind.Relative);
             bmpGracza.EndInit();
             obrazGracza.Source = bmpGracza;
+
+            // Domyślne ustawienia wyboru
+            wybranyRozmiar = "mala";
+            trudnosc = "latwy";
         }
 
         private void WczytajObrazyTerenu()
@@ -54,7 +58,7 @@ namespace Gra2D
             obrazyTerenu[LAS] = new BitmapImage(new Uri("las.png", UriKind.Relative));
             obrazyTerenu[LAKA] = new BitmapImage(new Uri("laka.png", UriKind.Relative));
             obrazyTerenu[SKALA] = new BitmapImage(new Uri("skala.png", UriKind.Relative));
-            obrazyTerenu[DIAMENT] = new BitmapImage(new Uri("diament.jpg", UriKind.Relative)); // Obrazek diamentu z .jpg
+            obrazyTerenu[DIAMENT] = new BitmapImage(new Uri("diament.jpg", UriKind.Relative)); // Obrazek diamentu
         }
 
         private void WczytajMape(string sciezkaPliku)
@@ -74,25 +78,20 @@ namespace Gra2D
                     {
                         int teren = int.Parse(czesci[x]);
 
-                        // Zapobiegamy umieszczaniu skał na pozycji (0, 0) oraz wokół niej
+                        // Zapobiegamy umieszczaniu skał na pozycji (0,0) oraz na jej brzegach
                         if ((x == 0 && y == 0) || (x == 0 && y == 1) || (x == 1 && y == 0) ||
                             (x == szerokoscMapy - 1 && y == 0) || (x == 0 && y == wysokoscMapy - 1) ||
                             (x == szerokoscMapy - 1 && y == wysokoscMapy - 1))
                         {
-                            teren = LAKA; // Zmieniamy skalę na łąkę w tych miejscach
+                            teren = LAKA; // Zamiana skały na łąkę w tych krytycznych miejscach
                         }
 
                         if (teren == SKALA)
                         {
-                            // Zapobiegamy umieszczaniu skał na pozycji (0, 0) oraz wokół niej
                             if (x > 0 && y > 0 && x < szerokoscMapy - 1 && y < wysokoscMapy - 1)
-                            {
                                 mapa[y, x] = SKALA;
-                            }
                             else
-                            {
-                                mapa[y, x] = LAKA; // Zmieniamy na łąkę, jeśli na brzegach mapy
-                            }
+                                mapa[y, x] = LAKA;
                         }
                         else
                         {
@@ -109,7 +108,6 @@ namespace Gra2D
                 {
                     SiatkaMapy.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(RozmiarSegmentu) });
                 }
-
                 for (int x = 0; x < szerokoscMapy; x++)
                 {
                     SiatkaMapy.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(RozmiarSegmentu) });
@@ -128,13 +126,9 @@ namespace Gra2D
 
                         int rodzaj = mapa[y, x];
                         if (rodzaj >= 1 && rodzaj < ILE_TERENOW)
-                        {
                             obraz.Source = obrazyTerenu[rodzaj];
-                        }
                         else
-                        {
                             obraz.Source = null;
-                        }
 
                         Grid.SetRow(obraz, y);
                         Grid.SetColumn(obraz, x);
@@ -150,9 +144,9 @@ namespace Gra2D
                 AktualizujPozycjeGracza();
 
                 iloscDrewna = 0;
-                iloscDiamentow = 0; // Resetowanie licznika diamentów
+                iloscDiamentow = 0;
                 EtykietaDrewna.Content = "Drewno: " + iloscDrewna;
-                EtykietaDiamenty.Content = "Diamenty: " + iloscDiamentow; // Dodanie etykiety dla diamentów
+                EtykietaDiamenty.Content = "Diamenty: " + iloscDiamentow;
             }
             catch (Exception ex)
             {
@@ -203,7 +197,6 @@ namespace Gra2D
                     iloscDiamentow++;
                     EtykietaDiamenty.Content = "Diamenty: " + iloscDiamentow;
 
-                    // Jeżeli gracz zebrał odpowiednią liczbę diamentów
                     if ((wybranyRozmiar == "mala" && iloscDiamentow >= 1) ||
                         (wybranyRozmiar == "srednia" && iloscDiamentow >= 2) ||
                         (wybranyRozmiar == "duza" && iloscDiamentow >= 3))
@@ -220,13 +213,9 @@ namespace Gra2D
             string plik = Path.Combine(folder, $"{wybranyRozmiar}_{trudnosc}.txt");
 
             if (File.Exists(plik))
-            {
                 WczytajMape(plik);
-            }
             else
-            {
                 MessageBox.Show($"Nie znaleziono mapy: {plik}");
-            }
         }
 
         private void WybierzRozmiar_Click(object sender, RoutedEventArgs e)
@@ -245,6 +234,19 @@ namespace Gra2D
             {
                 trudnosc = button.Tag.ToString();
             }
+        }
+
+        // Metody obsługi rozwijania menu:
+        private void PokazTrudnosci_Click(object sender, RoutedEventArgs e)
+        {
+            // Przełącz widoczność panelu wyboru trudności
+            PanelTrudnosci.Visibility = PanelTrudnosci.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void PokazRozmiary_Click(object sender, RoutedEventArgs e)
+        {
+            // Przełącz widoczność panelu wyboru rozmiarów mapy
+            PanelRozmiarow.Visibility = PanelRozmiarow.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }
