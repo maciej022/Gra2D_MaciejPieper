@@ -9,6 +9,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="diament.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="diament.jpg" />
 		<Resource Include="gracz.png" />
 		<Resource Include="laka.png" />
 		<Resource Include="las.png" />
