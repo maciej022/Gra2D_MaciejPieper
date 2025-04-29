@@ -1,196 +1,166 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Input;
 
-namespace Gra2D
+namespace Gra2D  // Zmienione z GraWPF na Gra2D
 {
     public partial class MainWindow : Window
     {
-        // Stałe reprezentujące rodzaje terenu
-        public const int LAS = 1;
-        public const int LAKA = 2;
-        public const int SKALA = 3;
-        public const int DIAMENT = 4;
-        public const int ILE_TERENOW = 5;
+        const int RozmiarSegmentu = 32;
+        const int LAKA = 1, LAS = 2, SKALA = 3, DIAMENT = 4, ILE_TERENOW = 5;
 
-        private int[,] mapa;
-        private int szerokoscMapy;
-        private int wysokoscMapy;
-        private Image[,] tablicaTerenu;
-        private const int RozmiarSegmentu = 32;
+        string wybranyRozmiar = "srednia";
+        string trudnosc = "normalna";
+        int szerokoscMapy = 20;
+        int wysokoscMapy = 20;
 
-        private BitmapImage[] obrazyTerenu = new BitmapImage[ILE_TERENOW];
-        private int pozycjaGraczaX = 0;
-        private int pozycjaGraczaY = 0;
-        private Image obrazGracza;
-        private int iloscDrewna = 0;
-        private int iloscDiamentow = 0;
-        private string wybranyRozmiar = "mala";
-        private string trudnosc = "latwy";
-        private bool mozePrzechodzicPrzezSkaly = false;
-        private int wymaganeDrewnoDoUmiejetnosci = 8;
-        private int wymaganeDiamentyDoWygranej = 3;
+        int[,] mapa;
+        Image[,] tablicaTerenu;
+        Image obrazGracza;
+        int pozycjaGraczaX = 0;
+        int pozycjaGraczaY = 0;
+        int iloscDrewna = 0;
+        int iloscDiamentow = 0;
+        bool mozePrzechodzicPrzezSkaly = false;
+        BitmapImage[] obrazyTerenu = new BitmapImage[ILE_TERENOW];
 
         public MainWindow()
         {
             InitializeComponent();
             WczytajObrazyTerenu();
-            UstawWymagania();
-
             obrazGracza = new Image
             {
                 Width = RozmiarSegmentu,
-                Height = RozmiarSegmentu
+                Height = RozmiarSegmentu,
+                Source = new BitmapImage(new Uri("gracz.png", UriKind.Relative))
             };
-
-            BitmapImage bmpGracza = new BitmapImage();
-            bmpGracza.BeginInit();
-            bmpGracza.UriSource = new Uri("gracz.png", UriKind.Relative);
-            bmpGracza.EndInit();
-            obrazGracza.Source = bmpGracza;
-        }
-
-        private void UstawWymagania()
-        {
-            // Ustaw wymagane drewno w zależności od rozmiaru mapy
-            switch (wybranyRozmiar)
-            {
-                case "mala":
-                    wymaganeDrewnoDoUmiejetnosci = 8;
-                    break;
-                case "srednia":
-                    wymaganeDrewnoDoUmiejetnosci = 10;
-                    break;
-                case "duza":
-                    wymaganeDrewnoDoUmiejetnosci = 15;
-                    break;
-            }
-
-            // Ustaw wymagane diamenty w zależności od trudności
-            switch (trudnosc)
-            {
-                case "latwy":
-                    wymaganeDiamentyDoWygranej = 3;
-                    break;
-                case "sredni":
-                    wymaganeDiamentyDoWygranej = 5;
-                    break;
-                case "trudny":
-                    wymaganeDiamentyDoWygranej = 8;
-                    break;
-            }
         }
 
         private void WczytajObrazyTerenu()
         {
-            obrazyTerenu[LAS] = new BitmapImage(new Uri("las.png", UriKind.Relative));
             obrazyTerenu[LAKA] = new BitmapImage(new Uri("laka.png", UriKind.Relative));
+            obrazyTerenu[LAS] = new BitmapImage(new Uri("las.png", UriKind.Relative));
             obrazyTerenu[SKALA] = new BitmapImage(new Uri("skala.png", UriKind.Relative));
-            obrazyTerenu[DIAMENT] = new BitmapImage(new Uri("C:\\Users\\Maciek\\source\\repos\\maciej022\\Gra2D_MaciejPieper\\diament.jpg", UriKind.Relative));
+            obrazyTerenu[DIAMENT] = new BitmapImage(new Uri("diament.png", UriKind.Relative));
         }
 
-        private void WczytajMape(string sciezkaPliku)
+        private void WczytajMape(string sciezka)
         {
             try
             {
-                var linie = File.ReadAllLines(sciezkaPliku);
+                string[] linie = File.ReadAllLines(sciezka);
                 wysokoscMapy = linie.Length;
-                szerokoscMapy = linie[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
+                szerokoscMapy = linie[0].Split(' ').Length;
 
                 mapa = new int[wysokoscMapy, szerokoscMapy];
 
                 for (int y = 0; y < wysokoscMapy; y++)
                 {
-                    var czesci = linie[y].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] pola = linie[y].Split(' ');
                     for (int x = 0; x < szerokoscMapy; x++)
                     {
-                        int teren = int.Parse(czesci[x]);
-
-                        if ((x == 0 && y == 0) || (x == 0 && y == 1) || (x == 1 && y == 0) ||
-                            (x == szerokoscMapy - 1 && y == 0) || (x == 0 && y == wysokoscMapy - 1) ||
-                            (x == szerokoscMapy - 1 && y == wysokoscMapy - 1))
-                        {
-                            teren = LAKA;
-                        }
-
-                        if (teren == SKALA)
-                        {
-                            if (x > 0 && y > 0 && x < szerokoscMapy - 1 && y < wysokoscMapy - 1)
-                            {
-                                mapa[y, x] = SKALA;
-                            }
-                            else
-                            {
-                                mapa[y, x] = LAKA;
-                            }
-                        }
-                        else
-                        {
-                            mapa[y, x] = teren;
-                        }
+                        mapa[y, x] = int.Parse(pola[x]);
                     }
                 }
 
-                SiatkaMapy.Children.Clear();
-                SiatkaMapy.RowDefinitions.Clear();
-                SiatkaMapy.ColumnDefinitions.Clear();
-
-                for (int y = 0; y < wysokoscMapy; y++)
-                {
-                    SiatkaMapy.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(RozmiarSegmentu) });
-                }
-
-                for (int x = 0; x < szerokoscMapy; x++)
-                {
-                    SiatkaMapy.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(RozmiarSegmentu) });
-                }
-
-                tablicaTerenu = new Image[wysokoscMapy, szerokoscMapy];
-                for (int y = 0; y < wysokoscMapy; y++)
-                {
-                    for (int x = 0; x < szerokoscMapy; x++)
-                    {
-                        Image obraz = new Image
-                        {
-                            Width = RozmiarSegmentu,
-                            Height = RozmiarSegmentu
-                        };
-
-                        int rodzaj = mapa[y, x];
-                        if (rodzaj >= 1 && rodzaj < ILE_TERENOW)
-                        {
-                            obraz.Source = obrazyTerenu[rodzaj];
-                        }
-                        else
-                        {
-                            obraz.Source = obrazyTerenu[LAKA];
-                        }
-
-                        Grid.SetRow(obraz, y);
-                        Grid.SetColumn(obraz, x);
-                        SiatkaMapy.Children.Add(obraz);
-                        tablicaTerenu[y, x] = obraz;
-                    }
-                }
-
-                SiatkaMapy.Children.Add(obrazGracza);
-                Panel.SetZIndex(obrazGracza, 1);
-                pozycjaGraczaX = 0;
-                pozycjaGraczaY = 0;
-                AktualizujPozycjeGracza();
-
-                iloscDrewna = 0;
-                iloscDiamentow = 0;
-                mozePrzechodzicPrzezSkaly = false;
-                AktualizujEtykiety();
+                GenerujMape();
+                EtykietaStatus.Content = "Wczytano mapę.";
             }
             catch (Exception ex)
             {
-                EtykietaStatus.Content = "Błąd wczytywania mapy: " + ex.Message;
+                EtykietaStatus.Content = "Błąd przy wczytywaniu mapy: " + ex.Message;
+            }
+        }
+
+        private void GenerujMape()
+        {
+            SiatkaMapy.Children.Clear();
+            SiatkaMapy.RowDefinitions.Clear();
+            SiatkaMapy.ColumnDefinitions.Clear();
+
+            for (int y = 0; y < wysokoscMapy; y++)
+                SiatkaMapy.RowDefinitions.Add(new RowDefinition { Height = new GridLength(RozmiarSegmentu) });
+
+            for (int x = 0; x < szerokoscMapy; x++)
+                SiatkaMapy.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(RozmiarSegmentu) });
+
+            tablicaTerenu = new Image[wysokoscMapy, szerokoscMapy];
+
+            for (int y = 0; y < wysokoscMapy; y++)
+            {
+                for (int x = 0; x < szerokoscMapy; x++)
+                {
+                    Image obraz = new Image
+                    {
+                        Width = RozmiarSegmentu,
+                        Height = RozmiarSegmentu,
+                        Source = obrazyTerenu[mapa[y, x]]
+                    };
+
+                    Grid.SetRow(obraz, y);
+                    Grid.SetColumn(obraz, x);
+                    SiatkaMapy.Children.Add(obraz);
+                    tablicaTerenu[y, x] = obraz;
+                }
+            }
+
+            SiatkaMapy.Children.Add(obrazGracza);
+            Panel.SetZIndex(obrazGracza, 1);
+            pozycjaGraczaX = 0;
+            pozycjaGraczaY = 0;
+            AktualizujPozycjeGracza();
+
+            iloscDrewna = 0;
+            iloscDiamentow = 0;
+            mozePrzechodzicPrzezSkaly = false;
+            AktualizujEtykiety();
+        }
+
+        private void GenerujLosowaMape()
+        {
+            try
+            {
+                switch (wybranyRozmiar)
+                {
+                    case "mala":
+                        szerokoscMapy = 10;
+                        wysokoscMapy = 10;
+                        break;
+                    case "srednia":
+                        szerokoscMapy = 20;
+                        wysokoscMapy = 20;
+                        break;
+                    case "duza":
+                        szerokoscMapy = 30;
+                        wysokoscMapy = 30;
+                        break;
+                }
+
+                mapa = new int[wysokoscMapy, szerokoscMapy];
+                Random rand = new Random();
+
+                for (int y = 0; y < wysokoscMapy; y++)
+                {
+                    for (int x = 0; x < szerokoscMapy; x++)
+                    {
+                        int los = rand.Next(100);
+                        if (los < 50) mapa[y, x] = LAKA;
+                        else if (los < 80) mapa[y, x] = LAS;
+                        else if (los < 95) mapa[y, x] = SKALA;
+                        else mapa[y, x] = DIAMENT;
+                    }
+                }
+
+                mapa[0, 0] = LAKA;
+                GenerujMape();
+                EtykietaStatus.Content = "Wygenerowano losową mapę.";
+            }
+            catch (Exception ex)
+            {
+                EtykietaStatus.Content = "Błąd generowania mapy: " + ex.Message;
             }
         }
 
@@ -202,20 +172,11 @@ namespace Gra2D
 
         private void AktualizujEtykiety()
         {
-            EtykietaDrewna.Content = "Drewno: " + iloscDrewna;
-            EtykietaDiamenty.Content = "Diamenty: " + iloscDiamentow;
-
-            if (mozePrzechodzicPrzezSkaly)
-            {
-                EtykietaStatus.Content = "UMIEJĘTNOŚĆ: Możesz przechodzić przez skały!";
-            }
-            else
-            {
-                EtykietaStatus.Content = $"Zbierz {wymaganeDrewnoDoUmiejetnosci - iloscDrewna} drewna więcej";
-            }
+            EtykietaDrewno.Content = $"Drewno: {iloscDrewna}";
+            EtykietaDiament.Content = $"Diamenty: {iloscDiamentow}";
         }
 
-        private void OknoGlowne_KeyDown(object sender, KeyEventArgs e)
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             int nowyX = pozycjaGraczaX;
             int nowyY = pozycjaGraczaY;
@@ -225,98 +186,89 @@ namespace Gra2D
             else if (e.Key == Key.Left) nowyX--;
             else if (e.Key == Key.Right) nowyX++;
 
-            if (nowyX >= 0 && nowyX < szerokoscMapy && nowyY >= 0 && nowyY < wysokoscMapy)
+            if (nowyX < 0 || nowyX >= szerokoscMapy || nowyY < 0 || nowyY >= wysokoscMapy)
+                return;
+
+            int pole = mapa[nowyY, nowyX];
+
+            if (pole == SKALA && !mozePrzechodzicPrzezSkaly)
+                return;
+
+            pozycjaGraczaX = nowyX;
+            pozycjaGraczaY = nowyY;
+            AktualizujPozycjeGracza();
+
+            if (pole == LAS)
             {
-                if (mapa[nowyY, nowyX] != SKALA || mozePrzechodzicPrzezSkaly)
-                {
-                    pozycjaGraczaX = nowyX;
-                    pozycjaGraczaY = nowyY;
-                    AktualizujPozycjeGracza();
-                }
+                mapa[nowyY, nowyX] = LAKA;
+                tablicaTerenu[nowyY, nowyX].Source = obrazyTerenu[LAKA];
+                iloscDrewna++;
             }
 
-            if (e.Key == Key.C)
+            if (pole == DIAMENT)
             {
-                if (mapa[pozycjaGraczaY, pozycjaGraczaX] == LAS)
-                {
-                    mapa[pozycjaGraczaY, pozycjaGraczaX] = LAKA;
-                    tablicaTerenu[pozycjaGraczaY, pozycjaGraczaX].Source = obrazyTerenu[LAKA];
-                    iloscDrewna++;
-
-                    if (!mozePrzechodzicPrzezSkaly && iloscDrewna >= wymaganeDrewnoDoUmiejetnosci)
-                    {
-                        mozePrzechodzicPrzezSkaly = true;
-                        EtykietaStatus.Content = "UMIEJĘTNOŚĆ: Możesz przechodzić przez skały!";
-                    }
-                }
-                else if (mapa[pozycjaGraczaY, pozycjaGraczaX] == DIAMENT)
-                {
-                    mapa[pozycjaGraczaY, pozycjaGraczaX] = LAKA;
-                    tablicaTerenu[pozycjaGraczaY, pozycjaGraczaX].Source = obrazyTerenu[LAKA];
-                    iloscDiamentow++;
-
-                    if (iloscDiamentow >= wymaganeDiamentyDoWygranej)
-                    {
-                        EtykietaStatus.Content = "GRATULACJE! Wygrałeś!";
-                        // Możesz dodać tutaj kod kończący grę
-                    }
-                }
-
-                AktualizujEtykiety();
+                mapa[nowyY, nowyX] = LAKA;
+                tablicaTerenu[nowyY, nowyX].Source = obrazyTerenu[LAKA];
+                iloscDiamentow++;
             }
+
+            if (iloscDiamentow >= 3)
+                mozePrzechodzicPrzezSkaly = true;
+
+            AktualizujEtykiety();
         }
 
         private void WczytajMape_Click(object sender, RoutedEventArgs e)
         {
-            string folder = AppDomain.CurrentDomain.BaseDirectory;
-            string plik = Path.Combine(folder, $"{wybranyRozmiar}_{trudnosc}.txt");
+            try
+            {
+                MessageBoxResult result = MessageBox.Show("Czy chcesz wczytać mapę z pliku?", "Wczytaj mapę", MessageBoxButton.YesNoCancel);
 
-            if (File.Exists(plik))
-            {
-                WczytajMape(plik);
+                if (result == MessageBoxResult.Yes)
+                {
+                    string folder = AppDomain.CurrentDomain.BaseDirectory;
+                    string plik = Path.Combine(folder, $"{wybranyRozmiar}_{trudnosc}.txt");
+
+                    if (File.Exists(plik))
+                        WczytajMape(plik);
+                    else
+                        EtykietaStatus.Content = $"Nie znaleziono mapy: {plik}";
+                }
+                else if (result == MessageBoxResult.No)
+                {
+                    GenerujLosowaMape();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                EtykietaStatus.Content = $"Nie znaleziono mapy: {plik}";
+                EtykietaStatus.Content = "Błąd podczas wczytywania mapy: " + ex.Message;
             }
-            Menu.IsEnabled = false;
         }
 
+        private void GenerujLosowaMape_Click(object sender, RoutedEventArgs e)
+        {
+            GenerujLosowaMape();
+        }
+
+        // Dodane brakujące metody
         private void WybierzRozmiar_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button != null)
-            {
-                wybranyRozmiar = button.Tag.ToString();
-                UstawWymagania();
-                EtykietaStatus.Content = $"Wybrano rozmiar: {wybranyRozmiar}";
-            }
+            // Implementacja wyboru rozmiaru
         }
 
         private void WybierzTrudnosc_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button != null)
-            {
-                trudnosc = button.Tag.ToString();
-                UstawWymagania();
-                EtykietaStatus.Content = $"Wybrano trudność: {trudnosc}";
-            }
+            // Implementacja wyboru trudności
         }
 
         private void PokazSterowanie_Click(object sender, RoutedEventArgs e)
         {
-            EtykietaStatus.Content = "Sterowanie: Strzałki - ruch, C - zbieranie";
+            // Implementacja pokazywania sterowania
         }
 
         private void PokazJakGrac_Click(object sender, RoutedEventArgs e)
         {
-            EtykietaStatus.Content = "Cel gry: Zbierz drewno, aby zdobyć umiejętność przechodzenia przez skały i zbierz diamenty, aby wygrać!";
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
+            // Implementacja pokazywania instrukcji
         }
     }
 }

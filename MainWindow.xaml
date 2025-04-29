@@ -2,50 +2,41 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Gra 2D" Height="600" Width="800"
-        KeyDown="OknoGlowne_KeyDown">
-    <DockPanel>
-        <!-- Menu główne -->
-        <Menu x:Name="Menu" DockPanel.Dock="Top">
-            <MenuItem Header="Opcje" Click="MenuItem_Click">
-                <MenuItem Header="Wybierz rozmiar mapy" Click="WybierzRozmiar_Click"/>
-                <MenuItem Header="Wybierz trudność" Click="WybierzTrudnosc_Click"/>
-               
-                <MenuItem Header="Sterowanie" Click="PokazSterowanie_Click"/>
-                <MenuItem Header="Jak grać" Click="PokazJakGrac_Click"/>
-            </MenuItem>
-        </Menu>
- 
-        <!-- Główna zawartość -->
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        KeyDown="MainWindow_KeyDown">
 
-            <!-- Panel informacyjny -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-                <Label Name="EtykietaDrewna" Content="Drewno: 0" FontSize="16" FontWeight="Bold"/>
-                <Label Name="EtykietaDiamenty" Content="Diamenty: 0" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
-                <Label Name="EtykietaStatus" Content="" FontSize="16" Foreground="Blue" Margin="20,0,0,0"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Panel informacyjny -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <Label x:Name="EtykietaDrewno" Content="Drewno: 0" FontSize="16" FontWeight="Bold"/>
+            <Label x:Name="EtykietaDiament" Content="Diamenty: 0" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+            <Label x:Name="EtykietaStatus" Content="" FontSize="16" Foreground="Blue" Margin="20,0,0,0"/>
+        </StackPanel>
+
+        <!-- Mapa i panel boczny -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Siatka mapy -->
+            <Grid x:Name="SiatkaMapy" Grid.Column="0" Background="LightGray" Margin="10"/>
+
+            <!-- Panel boczny -->
+            <StackPanel Grid.Column="1" Orientation="Vertical" Margin="10" Width="180">
+                <Button Content="Wczytaj mapę" Click="WczytajMape_Click" Margin="5" Height="40" 
+                        Background="DarkGreen" Foreground="White" FontSize="14"/>
+                <Button Content="Generuj losową mapę" Click="GenerujLosowaMape_Click" Margin="5" Height="30"/>
+                <Button Content="Wybierz rozmiar mapy" Click="WybierzRozmiar_Click" Margin="5" Height="30"/>
+                <Button Content="Wybierz trudność" Click="WybierzTrudnosc_Click" Margin="5" Height="30"/>
+                <Button Content="Sterowanie" Click="PokazSterowanie_Click" Margin="5" Height="30"/>
+                <Button Content="Jak grać" Click="PokazJakGrac_Click" Margin="5" Height="30"/>
             </StackPanel>
-
-            <!-- Mapa i panel boczny -->
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Siatka mapy -->
-                <Grid x:Name="SiatkaMapy" Grid.Column="0" Background="LightGray" Margin="10"/>
-
-                <!-- Panel boczny -->
-                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="10" Width="150">
-                    <Button Content="Wczytaj mapę" Click="WczytajMape_Click" Margin="5" Height="40" 
-                            Background="DarkGreen" Foreground="White" FontSize="14"/>
-                    
-                </StackPanel>
-            </Grid>
         </Grid>
-    </DockPanel>
+    </Grid>
 </Window>

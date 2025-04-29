@@ -13,11 +13,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Resource Include="diament.jpg" />
 		<Resource Include="gracz.png" />
 		<Resource Include="laka.png" />
 		<Resource Include="las.png" />
 		<Resource Include="skala.png" />
+		<Resource Include="diament.png" />
 	</ItemGroup>
 
 </Project>
