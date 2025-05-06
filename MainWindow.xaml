@@ -31,7 +31,7 @@
             <StackPanel Grid.Column="1" Orientation="Vertical" Margin="10" Width="180">
                 <Button Content="Wczytaj mapę" Click="WczytajMape_Click" Margin="5" Height="40" 
                         Background="DarkGreen" Foreground="White" FontSize="14"/>
-                <Button Content="Generuj losową mapę" Click="GenerujLosowaMape_Click" Margin="5" Height="30"/>
+                <Button Content="Generuj losową mapę" Click="GenerujLosowaMape_Click" Margin="5" Height="30" Background="#FF07CE07"/>
                 <Button Content="Wybierz rozmiar mapy" Click="WybierzRozmiar_Click" Margin="5" Height="30"/>
                 <Button Content="Wybierz trudność" Click="WybierzTrudnosc_Click" Margin="5" Height="30"/>
                 <Button Content="Sterowanie" Click="PokazSterowanie_Click" Margin="5" Height="30"/>

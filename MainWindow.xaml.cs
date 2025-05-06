@@ -5,17 +5,18 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 
-namespace Gra2D  // Zmienione z GraWPF na Gra2D
+namespace Gra2D
 {
     public partial class MainWindow : Window
     {
         const int RozmiarSegmentu = 32;
         const int LAKA = 1, LAS = 2, SKALA = 3, DIAMENT = 4, ILE_TERENOW = 5;
 
-        string wybranyRozmiar = "srednia";
+        string wybranyRozmiar = null; 
         string trudnosc = "normalna";
         int szerokoscMapy = 20;
         int wysokoscMapy = 20;
+        int wymaganeDiamenty = 5;
 
         int[,] mapa;
         Image[,] tablicaTerenu;
@@ -123,6 +124,12 @@ namespace Gra2D  // Zmienione z GraWPF na Gra2D
         {
             try
             {
+                if (wybranyRozmiar == null)
+                {
+                    EtykietaStatus.Content = "Najpierw wybierz rozmiar mapy!";
+                    return;
+                }
+
                 switch (wybranyRozmiar)
                 {
                     case "mala":
@@ -136,6 +143,20 @@ namespace Gra2D  // Zmienione z GraWPF na Gra2D
                     case "duza":
                         szerokoscMapy = 30;
                         wysokoscMapy = 30;
+                        break;
+                }
+
+             
+                switch (trudnosc)
+                {
+                    case "latwa":
+                        wymaganeDiamenty = 3;
+                        break;
+                    case "normalna":
+                        wymaganeDiamenty = 5;
+                        break;
+                    case "trudna":
+                        wymaganeDiamenty = 8;
                         break;
                 }
 
@@ -156,7 +177,7 @@ namespace Gra2D  // Zmienione z GraWPF na Gra2D
 
                 mapa[0, 0] = LAKA;
                 GenerujMape();
-                EtykietaStatus.Content = "Wygenerowano losową mapę.";
+                EtykietaStatus.Content = $"Wygenerowano losową mapę. Zbierz {wymaganeDiamenty} diamentów, aby wygrać!";
             }
             catch (Exception ex)
             {
@@ -173,7 +194,15 @@ namespace Gra2D  // Zmienione z GraWPF na Gra2D
         private void AktualizujEtykiety()
         {
             EtykietaDrewno.Content = $"Drewno: {iloscDrewna}";
-            EtykietaDiament.Content = $"Diamenty: {iloscDiamentow}";
+            EtykietaDiament.Content = $"Diamenty: {iloscDiamentow}/{wymaganeDiamenty}";
+
+            // Check win condition
+            if (iloscDiamentow >= wymaganeDiamenty)
+            {
+                EtykietaStatus.Content = "Gratulacje! Wygrałeś!";
+                MessageBox.Show("Gratulacje! Udało Ci się zebrać wymaganą liczbę diamentów!", "Wygrana");
+                Application.Current.Shutdown();
+            }
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -248,27 +277,75 @@ namespace Gra2D  // Zmienione z GraWPF na Gra2D
         private void GenerujLosowaMape_Click(object sender, RoutedEventArgs e)
         {
             GenerujLosowaMape();
+
         }
 
-        // Dodane brakujące metody
         private void WybierzRozmiar_Click(object sender, RoutedEventArgs e)
         {
-            // Implementacja wyboru rozmiaru
+            var dialog = new Window()
+            {
+                Title = "Wybierz rozmiar mapy",
+                Width = 300,
+                Height = 200,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            var stackPanel = new StackPanel();
+
+            var malaButton = new Button() { Content = "Mała (10x10)", Margin = new Thickness(10) };
+            malaButton.Click += (s, args) => { wybranyRozmiar = "mala"; dialog.Close(); };
+
+            var sredniaButton = new Button() { Content = "Średnia (20x20)", Margin = new Thickness(10) };
+            sredniaButton.Click += (s, args) => { wybranyRozmiar = "srednia"; dialog.Close(); };
+
+            var duzaButton = new Button() { Content = "Duża (30x30)", Margin = new Thickness(10) };
+            duzaButton.Click += (s, args) => { wybranyRozmiar = "duza"; dialog.Close(); };
+
+            stackPanel.Children.Add(malaButton);
+            stackPanel.Children.Add(sredniaButton);
+            stackPanel.Children.Add(duzaButton);
+
+            dialog.Content = stackPanel;
+            dialog.ShowDialog();
         }
 
         private void WybierzTrudnosc_Click(object sender, RoutedEventArgs e)
         {
-            // Implementacja wyboru trudności
+            var dialog = new Window()
+            {
+                Title = "Wybierz trudność",
+                Width = 300,
+                Height = 200,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            var stackPanel = new StackPanel();
+
+            var latwaButton = new Button() { Content = "Łatwa", Margin = new Thickness(10) };
+            latwaButton.Click += (s, args) => { trudnosc = "latwa"; dialog.Close(); };
+
+            var normalnaButton = new Button() { Content = "Normalna", Margin = new Thickness(10) };
+            normalnaButton.Click += (s, args) => { trudnosc = "normalna"; dialog.Close(); };
+
+            var trudnaButton = new Button() { Content = "Trudna", Margin = new Thickness(10) };
+            trudnaButton.Click += (s, args) => { trudnosc = "trudna"; dialog.Close(); };
+
+            stackPanel.Children.Add(latwaButton);
+            stackPanel.Children.Add(normalnaButton);
+            stackPanel.Children.Add(trudnaButton);
+
+            dialog.Content = stackPanel;
+            dialog.ShowDialog();
         }
 
         private void PokazSterowanie_Click(object sender, RoutedEventArgs e)
         {
-            // Implementacja pokazywania sterowania
+            MessageBox.Show("Sterowanie:\nStrzałki - poruszanie się\nZbieraj drewno i diamenty poruszając się po mapie.", "Sterowanie");
         }
 
         private void PokazJakGrac_Click(object sender, RoutedEventArgs e)
         {
-            // Implementacja pokazywania instrukcji
+            MessageBox.Show("Cel gry:\n- Zbierz wymaganą liczbę diamentów (zależy od trudności)\n- Zbierz drewno, aby zwiększyć swój wynik\n- Po zebraniu 3 diamentów możesz przechodzić przez skały", "Jak grać");
         }
     }
 }
