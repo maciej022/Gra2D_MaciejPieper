@@ -36,7 +36,7 @@ namespace Gra2D
             InitializeComponent();
             this.WindowState = WindowState.Maximized;
             this.WindowStyle = WindowStyle.None;
-            this.ResizeMode = ResizeMode.NoResize;
+            
 
             WczytajObrazyTerenu();
             obrazGracza = new Image
